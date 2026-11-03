@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
   <title>Wanja AI - Accurate Textbook Study & Question Solver</title>
   
-  <!-- Google Fonts: Plus Jakarta Sans & Outfit -->
+  <!-- Google Fonts: Plus Jakarta Sans, Outfit, Caveat & Dancing Script -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Dancing+Script:wght@600;700&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -37,6 +37,8 @@
           fontFamily: {
             sans: ['"Plus Jakarta Sans"', 'sans-serif'],
             display: ['"Outfit"', 'sans-serif'],
+            handwriting: ['"Caveat"', 'cursive'],
+            fancy: ['"Dancing Script"', 'cursive'],
             mono: ['"Fira Code"', 'monospace']
           }
         }
@@ -132,10 +134,20 @@
         </button>
       </div>
 
-      <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-center gap-3 text-xs text-slate-400">
-        <span>🔒 Secure Student Session</span>
-        <span>•</span>
-        <span>⚡ Super Fast Response</span>
+      <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-col items-center justify-center gap-1.5 text-xs text-slate-400">
+        <div class="flex items-center gap-3">
+          <span>🔒 Secure Student Session</span>
+          <span>•</span>
+          <span>⚡ Super Fast Response</span>
+        </div>
+        <div class="mt-1 pt-1.5 border-t border-pink-100/60 dark:border-pink-900/30 text-center">
+          <p class="font-fancy text-base font-bold bg-gradient-to-r from-pink-600 via-rose-500 to-purple-600 bg-clip-text text-transparent">
+            created by @byttie
+          </p>
+          <p class="text-[10px] text-pink-700/80 dark:text-pink-300/80 font-medium tracking-wide">
+            report if there is an issue
+          </p>
+        </div>
       </div>
     </div>
   </div>
@@ -202,6 +214,16 @@
           <svg class="w-4 h-4 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </button>
 
+        <!-- Noticeable Creator Signature in Sidebar -->
+        <div class="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-pink-50 to-purple-50 dark:from-slate-800/80 dark:to-purple-950/30 border border-pink-200/80 dark:border-pink-900/50 text-center">
+          <p class="font-fancy text-base font-bold bg-gradient-to-r from-pink-600 via-rose-500 to-purple-600 bg-clip-text text-transparent">
+            created by @byttie
+          </p>
+          <p class="text-[10px] text-pink-700 dark:text-pink-300 font-medium">
+            report if there is an issue
+          </p>
+        </div>
+
         <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-1">
           <button id="btn-open-apikey" class="hover:text-pink-600 dark:hover:text-pink-400 flex items-center gap-1 font-medium">
             <span>⚙️</span> API Settings
@@ -225,6 +247,18 @@
 
     <!-- MAIN CHAT PANEL -->
     <main class="flex-1 flex flex-col h-full bg-slate-50/50 dark:bg-slate-950 relative overflow-hidden transition-colors duration-200">
+      
+      <!-- Subtle Watermark in Main Chat Background -->
+      <div class="pointer-events-none select-none absolute inset-0 flex items-center justify-center opacity-[0.035] dark:opacity-[0.05] z-0 overflow-hidden">
+        <div class="text-center transform -rotate-12 space-y-2">
+          <p class="font-fancy text-4xl sm:text-6xl md:text-7xl font-bold tracking-wide text-pink-600 dark:text-pink-400">
+            created by @byttie
+          </p>
+          <p class="font-sans text-xs sm:text-sm font-semibold tracking-widest uppercase text-slate-800 dark:text-slate-100">
+            report if there is an issue
+          </p>
+        </div>
+      </div>
       
       <!-- Top Navigation & Header Controls -->
       <header class="bg-white/95 dark:bg-slate-900/90 backdrop-blur-md border-b border-pink-100 dark:border-pink-900/30 px-4 py-2.5 flex items-center justify-between z-10 shadow-sm transition-colors duration-200">
@@ -341,10 +375,19 @@
           </button>
         </div>
 
-        <div class="text-center mt-1.5">
-          <p class="text-[11px] text-slate-400 dark:text-slate-500">
+        <div class="text-center mt-1.5 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
+          <p class="text-[11px] text-slate-400 dark:text-slate-500 hidden sm:inline">
             Wanja labels work properly: Givens • Formulas • Numbered Steps • Boxed Answer
           </p>
+          <span class="text-slate-300 dark:text-slate-600 hidden sm:inline">•</span>
+          <div class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-pink-100/60 dark:bg-pink-950/40 border border-pink-200/70 dark:border-pink-900/50">
+            <span class="font-fancy text-sm sm:text-base font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+              created by @byttie
+            </span>
+            <span class="text-[10px] text-pink-700 dark:text-pink-300 font-medium">
+              (report if there is an issue)
+            </span>
+          </div>
         </div>
       </footer>
     </main>
