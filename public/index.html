@@ -2,7 +2,7 @@
 <html lang="en" class="h-full">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
   <title>Wanja AI - Accurate Textbook Study & Question Solver</title>
   
   <!-- Google Fonts: Plus Jakarta Sans & Outfit -->
@@ -54,7 +54,7 @@
   
   <link rel="stylesheet" href="/style.css">
 </head>
-<body class="bg-gradient-to-br from-pink-50 via-white to-purple-50 dark:from-slate-950 dark:via-slate-900 dark:to-purple-950/50 text-slate-800 dark:text-slate-100 antialiased h-screen overflow-hidden flex flex-col font-sans select-none transition-colors duration-200">
+<body class="bg-gradient-to-br from-pink-50 via-white to-purple-50 dark:from-slate-950 dark:via-slate-900 dark:to-purple-950/50 text-slate-800 dark:text-slate-100 antialiased h-[100dvh] overflow-hidden flex flex-col font-sans transition-colors duration-200">
 
   <!-- ==================== PASSCODE GATE SCREEN ==================== -->
   <div id="gate-screen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gradient-to-br from-pink-600 via-rose-500 to-purple-700">
@@ -277,7 +277,7 @@
       </header>
 
       <!-- Messages Area -->
-      <div id="messages-container" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
+      <div id="messages-container" class="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-4 md:p-6 space-y-4 md:space-y-6 w-full max-w-4xl mx-auto">
         <!-- Messages rendered here -->
       </div>
 

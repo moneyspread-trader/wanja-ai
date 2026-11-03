@@ -6,7 +6,7 @@ const API_BASE = '/api';
 
 // State
 let currentUser = localStorage.getItem('wanja_user') || null;
-let currentPasscodeVerified = sessionStorage.getItem('wanja_passcode_verified') === 'true';
+let currentPasscodeVerified = localStorage.getItem('wanja_passcode_verified') === 'true' || sessionStorage.getItem('wanja_passcode_verified') === 'true';
 let activeChatId = localStorage.getItem('wanja_active_chat') || null;
 let chats = [];
 let activeReferenceBook = {
@@ -259,27 +259,24 @@ async function handleVerifyPasscode() {
   const code = passcodeInput.value.trim();
   passcodeError.classList.add('hidden');
 
-  try {
-    const res = await fetch(`${API_BASE}/auth/verify-passcode`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ passcode: code })
-    });
-    const data = await res.json();
-
-    if (data.success) {
-      currentPasscodeVerified = true;
-      sessionStorage.setItem('wanja_passcode_verified', 'true');
-      passcodeStep.classList.add('hidden');
-      usernameStep.classList.remove('hidden');
-      usernameInput.focus();
-    } else {
-      passcodeError.classList.remove('hidden');
-      passcodeInput.classList.add('border-rose-400');
-    }
-  } catch (err) {
-    passcodeError.textContent = 'Server error verifying passcode.';
+  if (!code) {
+    passcodeError.textContent = 'Please enter the passcode.';
     passcodeError.classList.remove('hidden');
+    return;
+  }
+
+  // Instant local check for super fast response
+  if (code.toUpperCase() === 'BETTYAI') {
+    currentPasscodeVerified = true;
+    localStorage.setItem('wanja_passcode_verified', 'true');
+    sessionStorage.setItem('wanja_passcode_verified', 'true');
+    passcodeStep.classList.add('hidden');
+    usernameStep.classList.remove('hidden');
+    setTimeout(() => usernameInput.focus(), 50);
+  } else {
+    passcodeError.textContent = 'Incorrect passcode. Please enter BETTYAI.';
+    passcodeError.classList.remove('hidden');
+    passcodeInput.classList.add('border-rose-400');
   }
 }
 
@@ -331,6 +328,7 @@ async function handleLoginUsername() {
 function handleLogout() {
   localStorage.removeItem('wanja_user');
   localStorage.removeItem('wanja_active_chat');
+  localStorage.removeItem('wanja_passcode_verified');
   sessionStorage.removeItem('wanja_passcode_verified');
   currentUser = null;
   currentPasscodeVerified = false;
@@ -411,6 +409,11 @@ function renderChatsList() {
       localStorage.setItem('wanja_active_chat', activeChatId);
       renderChatsList();
       loadChat(chat.id);
+      // Auto-close mobile sidebar if open
+      if (sidebar && !sidebar.classList.contains('-translate-x-full')) {
+        sidebar.classList.add('-translate-x-full');
+        sidebarBackdrop.classList.add('hidden');
+      }
     });
 
     const deleteBtn = item.querySelector('.delete-chat-btn');
@@ -554,13 +557,13 @@ function appendMessageElement(msg, autoScroll = true) {
 
   if (isUser) {
     wrapper.innerHTML = `
-      <div class="max-w-[85%] sm:max-w-[75%] rounded-2xl rounded-tr-none px-4 py-3 bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 text-white shadow-md shadow-pink-500/20 text-sm">
+      <div class="max-w-[90%] sm:max-w-[78%] rounded-2xl rounded-tr-none px-3.5 py-2.5 sm:px-4 sm:py-3 bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 text-white shadow-md shadow-pink-500/20 text-sm break-words overflow-hidden">
         ${msg.imageData ? `
           <div class="mb-2 rounded-lg overflow-hidden border border-white/20">
-            <img src="${msg.imageData}" alt="Scanned problem" class="max-h-60 w-auto object-contain bg-black/10">
+            <img src="${msg.imageData}" alt="Scanned problem" class="max-h-52 w-full object-contain bg-black/10">
           </div>
         ` : ''}
-        <div class="whitespace-pre-wrap">${escapeHtml(msg.text || '')}</div>
+        <div class="whitespace-pre-wrap break-words">${escapeHtml(msg.text || '')}</div>
       </div>
       <span class="text-[10px] text-slate-400 mt-1 mr-1">${formatTime(msg.timestamp)}</span>
     `;
@@ -570,37 +573,37 @@ function appendMessageElement(msg, autoScroll = true) {
     const formattedHtml = parseMarkdownToHtml(msg.text || '');
 
     wrapper.innerHTML = `
-      <div class="flex items-start gap-2.5 max-w-[95%] sm:max-w-[88%]">
-        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-pink-500 to-purple-600 flex items-center justify-center text-sm text-white font-bold flex-shrink-0 shadow-md shadow-pink-500/20 mt-1">
+      <div class="flex items-start gap-2 sm:gap-2.5 w-full max-w-full">
+        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-tr from-pink-500 to-purple-600 flex items-center justify-center text-xs sm:text-sm text-white font-bold flex-shrink-0 shadow-md shadow-pink-500/20 mt-1">
           🌸
         </div>
         
-        <div class="flex-1 bg-white dark:bg-slate-900 border border-pink-100 dark:border-pink-900/40 rounded-2xl rounded-tl-none p-4 md:p-5 shadow-sm space-y-3 message-bubble">
+        <div class="flex-1 min-w-0 bg-white dark:bg-slate-900 border border-pink-100 dark:border-pink-900/40 rounded-2xl rounded-tl-none p-3.5 sm:p-4 md:p-5 shadow-sm space-y-3 message-bubble overflow-hidden break-words">
           
           <!-- Source Badge -->
-          <div class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-pink-50 dark:border-pink-900/30 text-[11px] text-slate-500 dark:text-slate-400">
-            <span class="flex items-center gap-1.5 font-semibold text-pink-700 dark:text-pink-300 bg-pink-50 dark:bg-slate-800 px-2.5 py-0.5 rounded-full border border-pink-200 dark:border-pink-900/40">
+          <div class="flex flex-wrap items-center justify-between gap-1.5 pb-2 border-b border-pink-50 dark:border-pink-900/30 text-[11px] text-slate-500 dark:text-slate-400">
+            <span class="flex items-center gap-1.5 font-semibold text-pink-700 dark:text-pink-300 bg-pink-50 dark:bg-slate-800 px-2 py-0.5 rounded-full border border-pink-200 dark:border-pink-900/40 truncate max-w-[200px] sm:max-w-none">
               <span>📖</span>
-              <span>${escapeHtml(msg.referenceBook?.title || activeReferenceBook.title)}</span>
+              <span class="truncate">${escapeHtml(msg.referenceBook?.title || activeReferenceBook.title)}</span>
             </span>
             ${msg.responseTimeMs ? `
-              <span class="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full flex items-center gap-1">
+              <span class="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full flex items-center gap-1 flex-shrink-0">
                 <span>⚡</span> ${msg.responseTimeMs}ms
               </span>
             ` : ''}
           </div>
 
           <!-- Body Content (Properly Labeled Homework Solution) -->
-          <div class="prose-wanja text-slate-800 dark:text-slate-100 text-sm leading-relaxed overflow-x-auto">
+          <div class="prose-wanja text-slate-800 dark:text-slate-100 text-sm leading-relaxed overflow-x-auto break-words">
             ${formattedHtml}
           </div>
 
           <!-- Actions Bar: Explain Button & Copy -->
-          <div class="pt-3 border-t border-pink-50 dark:border-pink-900/30 flex items-center justify-between gap-2">
+          <div class="pt-2 sm:pt-3 border-t border-pink-50 dark:border-pink-900/30 flex items-center justify-between gap-2">
             
             <!-- THE IMPORTANT "EXPLAIN" BUTTON -->
             <button 
-              class="btn-explain px-3 py-1.5 rounded-xl bg-gradient-to-r from-pink-50 to-purple-50 dark:from-slate-800 dark:to-purple-950/40 hover:from-pink-100 dark:hover:from-slate-700 border border-pink-200 dark:border-pink-900/50 text-xs font-bold text-pink-700 dark:text-pink-300 hover:text-pink-900 transition-all flex items-center gap-1.5 shadow-sm active:scale-95"
+              class="btn-explain px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl bg-gradient-to-r from-pink-50 to-purple-50 dark:from-slate-800 dark:to-purple-950/40 hover:from-pink-100 dark:hover:bg-slate-700 border border-pink-200 dark:border-pink-900/50 text-[11px] sm:text-xs font-bold text-pink-700 dark:text-pink-300 hover:text-pink-900 transition-all flex items-center gap-1 shadow-sm active:scale-95"
               data-id="${msg.id}"
             >
               <span>💡</span>
@@ -617,19 +620,19 @@ function appendMessageElement(msg, autoScroll = true) {
           </div>
 
           <!-- Inline Explanation Section (Toggled by "Explain" button) -->
-          <div class="explanation-container ${hasExplanation ? '' : 'hidden'} bg-gradient-to-br from-purple-50 via-pink-50 to-white dark:from-slate-900 dark:via-purple-950/30 dark:to-slate-900 border-2 border-purple-200 dark:border-purple-800/60 rounded-xl p-4 text-xs space-y-2 mt-3 animate-fade-in shadow-inner">
+          <div class="explanation-container ${hasExplanation ? '' : 'hidden'} bg-gradient-to-br from-purple-50 via-pink-50 to-white dark:from-slate-900 dark:via-purple-950/30 dark:to-slate-900 border-2 border-purple-200 dark:border-purple-800/60 rounded-xl p-3 sm:p-4 text-xs space-y-2 mt-3 animate-fade-in shadow-inner overflow-hidden break-words">
             <div class="flex items-center gap-1.5 font-bold text-purple-900 dark:text-purple-300 text-sm">
               <span>💡</span>
               <span>Wanja's Simple Explanation</span>
             </div>
-            <div class="explanation-content prose-wanja text-slate-700 dark:text-slate-200">
+            <div class="explanation-content prose-wanja text-slate-700 dark:text-slate-200 break-words overflow-x-auto">
               ${hasExplanation ? parseMarkdownToHtml(msg.explanation) : ''}
             </div>
           </div>
 
         </div>
       </div>
-      <span class="text-[10px] text-slate-400 mt-1 ml-11">${formatTime(msg.timestamp)}</span>
+      <span class="text-[10px] text-slate-400 mt-1 ml-9 sm:ml-11">${formatTime(msg.timestamp)}</span>
     `;
 
     // Hook Explain Button
