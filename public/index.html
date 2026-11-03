@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Wanja AI - Accurate Textbook Study & Question Solver</title>
+  
+  <!-- Google Fonts: Plus Jakarta Sans & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            wanja: {
+              50: '#fdf2f8',
+              100: '#fce7f3',
+              200: '#fbcfe8',
+              300: '#f472b6',
+              400: '#ec4899',
+              500: '#db2777',
+              600: '#be185d',
+              700: '#9d174d',
+              800: '#831843',
+              900: '#500724',
+              purple: '#9333ea',
+              'purple-light': '#a855f7',
+              'purple-dark': '#7e22ce'
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['"Outfit"', 'sans-serif'],
+            mono: ['"Fira Code"', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- KaTeX for crisp Math & Formula Rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  
+  <!-- Marked.js for fast Markdown formatting -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="bg-gradient-to-br from-pink-50 via-white to-purple-50 dark:from-slate-950 dark:via-slate-900 dark:to-purple-950/50 text-slate-800 dark:text-slate-100 antialiased h-screen overflow-hidden flex flex-col font-sans select-none transition-colors duration-200">
+
+  <!-- ==================== PASSCODE GATE SCREEN ==================== -->
+  <div id="gate-screen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gradient-to-br from-pink-600 via-rose-500 to-purple-700">
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white/20 via-transparent to-black/30 pointer-events-none"></div>
+    
+    <div class="relative w-full max-w-md bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-pink-200/60 dark:border-pink-900/40 text-center animate-fade-in">
+      <!-- Glow icon -->
+      <div class="w-20 h-20 mx-auto mb-5 rounded-2xl bg-gradient-to-tr from-pink-500 via-pink-400 to-purple-600 flex items-center justify-center shadow-lg shadow-pink-500/30 text-white text-3xl font-bold font-display transform hover:scale-105 transition-transform duration-300">
+        🌸
+      </div>
+
+      <h1 class="text-3xl font-extrabold font-display bg-gradient-to-r from-pink-600 via-rose-500 to-purple-600 bg-clip-text text-transparent">
+        Wanja AI
+      </h1>
+      <p class="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1 mb-6">
+        Curriculum-Accurate Textbook Study Assistant
+      </p>
+
+      <!-- Gate Passcode Box -->
+      <div id="passcode-step" class="space-y-4">
+        <div class="text-left">
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+            🔑 Access Passcode
+          </label>
+          <div class="relative">
+            <input 
+              type="password" 
+              id="passcode-input" 
+              placeholder="Enter passcode (BETTYAI)" 
+              class="w-full px-4 py-3.5 rounded-xl border-2 border-pink-100 dark:border-pink-900/50 focus:border-pink-500 focus:ring-4 focus:ring-pink-100 dark:focus:ring-pink-900/30 transition-all outline-none font-mono text-center tracking-widest text-lg bg-pink-50/40 dark:bg-slate-800 text-slate-800 dark:text-slate-100"
+              autocomplete="off"
+            />
+          </div>
+          <p id="passcode-error" class="hidden text-xs text-rose-600 dark:text-rose-400 font-semibold mt-2 flex items-center justify-center gap-1">
+            <span>⚠️</span> <span>Incorrect passcode. Please try again.</span>
+          </p>
+        </div>
+
+        <button 
+          id="btn-verify-passcode"
+          class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold shadow-lg shadow-pink-500/30 transform active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+        >
+          <span>Unlock Wanja</span>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </button>
+      </div>
+
+      <!-- Username Step (After Passcode is correct) -->
+      <div id="username-step" class="hidden space-y-4 text-left">
+        <div class="bg-pink-50 dark:bg-pink-950/40 border border-pink-200 dark:border-pink-800 rounded-xl p-3 text-xs text-pink-800 dark:text-pink-300">
+          ✨ <strong>Passcode accepted!</strong> Choose your unique student username. (First come, first served; remembers all your past chats!)
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+            👤 Student Username
+          </label>
+          <input 
+            type="text" 
+            id="username-input" 
+            placeholder="e.g. betty_study, wayne, grace" 
+            maxlength="24"
+            class="w-full px-4 py-3 rounded-xl border-2 border-pink-100 dark:border-pink-900/50 focus:border-pink-500 focus:ring-4 focus:ring-pink-100 dark:focus:ring-pink-900/30 transition-all outline-none font-medium bg-pink-50/40 dark:bg-slate-800 text-slate-800 dark:text-slate-100"
+            autocomplete="off"
+          />
+          <p id="username-error" class="hidden text-xs text-rose-600 font-semibold mt-2"></p>
+        </div>
+
+        <button 
+          id="btn-login-username"
+          class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold shadow-lg shadow-pink-500/30 transform active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+        >
+          <span>Start Studying</span>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </button>
+      </div>
+
+      <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-center gap-3 text-xs text-slate-400">
+        <span>🔒 Secure Student Session</span>
+        <span>•</span>
+        <span>⚡ Super Fast Response</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MAIN APPLICATION LAYOUT ==================== -->
+  <div id="app-container" class="flex-1 flex overflow-hidden relative">
+
+    <!-- SIDEBAR (DESKTOP & MOBILE DRAWER) -->
+    <aside id="sidebar" class="fixed md:static inset-y-0 left-0 z-40 w-72 md:w-80 bg-white/95 md:bg-white dark:bg-slate-900/95 md:dark:bg-slate-900 border-r border-pink-100 dark:border-pink-900/30 flex flex-col transition-transform duration-300 transform -translate-x-full md:translate-x-0 shadow-2xl md:shadow-none">
+      
+      <!-- App Header / Brand in Sidebar -->
+      <div class="p-4 border-b border-pink-100 dark:border-pink-900/30 flex items-center justify-between bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 text-white">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-lg shadow-sm">
+            🌸
+          </div>
+          <div>
+            <h2 class="font-extrabold font-display text-lg tracking-tight leading-tight">Wanja AI</h2>
+            <p class="text-[11px] text-pink-100 font-medium">Textbook Study Companion</p>
+          </div>
+        </div>
+        <button id="btn-close-mobile-sidebar" class="md:hidden p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- User Profile Badge & New Chat Button -->
+      <div class="p-3 border-b border-pink-100 dark:border-pink-900/30 space-y-2 bg-pink-50/30 dark:bg-slate-800/40">
+        <div class="flex items-center justify-between px-2 py-1 text-xs">
+          <span class="text-slate-500 dark:text-slate-400">Student:</span>
+          <span id="current-user-badge" class="font-bold text-pink-600 dark:text-pink-400 bg-pink-100 dark:bg-pink-950/60 px-2.5 py-0.5 rounded-full flex items-center gap-1 border border-pink-200 dark:border-pink-900">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span id="display-username">student</span>
+          </span>
+        </div>
+
+        <button 
+          id="btn-new-chat"
+          class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-semibold text-sm shadow-md shadow-pink-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          <span>New Study Session</span>
+        </button>
+      </div>
+
+      <!-- Past Chats List -->
+      <div class="flex-1 overflow-y-auto p-2 space-y-1" id="chats-list">
+        <div class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider px-3 py-1">
+          Past Conversations
+        </div>
+        <!-- Injected dynamically -->
+      </div>
+
+      <!-- Bottom Settings & Theme Toggle -->
+      <div class="p-3 border-t border-pink-100 dark:border-pink-900/30 bg-white dark:bg-slate-900 space-y-2">
+        <button 
+          id="btn-open-book-modal"
+          class="w-full py-2 px-3 rounded-lg border border-pink-200 dark:border-pink-900/50 bg-pink-50/50 dark:bg-slate-800 hover:bg-pink-100 dark:hover:bg-slate-700 text-xs font-semibold text-pink-700 dark:text-pink-400 flex items-center justify-between transition-colors"
+        >
+          <span class="flex items-center gap-2">
+            <span>📚</span>
+            <span>Switch Reference Book</span>
+          </span>
+          <svg class="w-4 h-4 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </button>
+
+        <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-1">
+          <button id="btn-open-apikey" class="hover:text-pink-600 dark:hover:text-pink-400 flex items-center gap-1 font-medium">
+            <span>⚙️</span> API Settings
+          </button>
+          
+          <!-- Theme Toggle in Sidebar -->
+          <button id="btn-theme-toggle-sidebar" class="hover:text-pink-600 dark:hover:text-pink-400 flex items-center gap-1 font-medium">
+            <span class="dark:hidden">🌙 Dark Mode</span>
+            <span class="hidden dark:inline">☀️ Light Mode</span>
+          </button>
+
+          <button id="btn-logout" class="text-rose-500 hover:text-rose-700 font-medium">
+            Log out
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- SIDEBAR BACKDROP FOR MOBILE -->
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-30 hidden md:hidden"></div>
+
+    <!-- MAIN CHAT PANEL -->
+    <main class="flex-1 flex flex-col h-full bg-slate-50/50 dark:bg-slate-950 relative overflow-hidden transition-colors duration-200">
+      
+      <!-- Top Navigation & Header Controls -->
+      <header class="bg-white/95 dark:bg-slate-900/90 backdrop-blur-md border-b border-pink-100 dark:border-pink-900/30 px-4 py-2.5 flex items-center justify-between z-10 shadow-sm transition-colors duration-200">
+        <div class="flex items-center gap-3">
+          <button id="btn-open-mobile-sidebar" class="md:hidden p-2 rounded-xl bg-pink-50 dark:bg-slate-800 hover:bg-pink-100 dark:hover:bg-slate-700 text-pink-600 dark:text-pink-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          
+          <div>
+            <h2 id="chat-title" class="font-bold text-slate-800 dark:text-slate-100 text-sm md:text-base leading-snug truncate max-w-[160px] sm:max-w-xs md:max-w-md">
+              Study Session
+            </h2>
+            <div class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+              <span class="w-2 h-2 rounded-full bg-pink-500 animate-pulse"></span>
+              <span class="text-pink-600 dark:text-pink-400 font-medium">Wanja High-Speed Engine</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <!-- Dark Mode Toggle Button in Header -->
+          <button 
+            id="btn-theme-toggle" 
+            class="p-2 rounded-full border border-pink-200 dark:border-pink-900/60 bg-pink-50/70 dark:bg-slate-800 text-slate-700 dark:text-pink-300 hover:bg-pink-100 dark:hover:bg-slate-700 transition-all shadow-sm flex items-center justify-center text-sm"
+            title="Toggle Light / Dark Mode"
+          >
+            <span class="dark:hidden">🌙</span>
+            <span class="hidden dark:inline">☀️</span>
+          </button>
+
+          <!-- Active Reference Book Pill -->
+          <button 
+            id="btn-header-book-pill"
+            class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-pink-50 via-purple-50 to-pink-50 dark:from-slate-800 dark:via-purple-950/40 dark:to-slate-800 border border-pink-200 dark:border-pink-900/50 text-slate-700 dark:text-slate-200 hover:border-pink-400 transition-all shadow-sm text-left group"
+            title="Click to change reference book"
+          >
+            <span class="text-base">📖</span>
+            <div class="hidden sm:block">
+              <div class="text-[10px] uppercase font-bold text-pink-600 dark:text-pink-400 tracking-wider">Reference Book</div>
+              <div id="pill-book-title" class="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate max-w-[130px] md:max-w-[200px]">
+                Stewart Calculus 8th Ed
+              </div>
+            </div>
+            <span class="sm:hidden text-xs font-semibold text-pink-700 dark:text-pink-400" id="pill-book-short">
+              Book
+            </span>
+            <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-pink-600 dark:group-hover:text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Messages Area -->
+      <div id="messages-container" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
+        <!-- Messages rendered here -->
+      </div>
+
+      <!-- Floating Image Preview Bar (When image selected or camera scan taken) -->
+      <div id="image-preview-container" class="hidden px-4 py-2 bg-pink-50/90 dark:bg-slate-900 border-t border-pink-200 dark:border-pink-900/50 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="relative w-12 h-12 rounded-lg overflow-hidden border-2 border-pink-400 shadow-sm">
+            <img id="preview-image" src="" alt="Question scan" class="w-full h-full object-cover">
+          </div>
+          <div>
+            <span class="text-xs font-bold text-pink-800 dark:text-pink-300 flex items-center gap-1">
+              <span>⚡</span> Fast Vision Scan Ready • Contrast Enhanced
+            </span>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Reads unclear/faint pictures clearly • Follows all instructions & questions</p>
+          </div>
+        </div>
+        <button id="btn-remove-image" class="p-1.5 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 hover:bg-rose-200">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Chat Bottom Input Bar -->
+      <footer class="p-3 md:p-4 bg-white/95 dark:bg-slate-900/90 backdrop-blur-md border-t border-pink-100 dark:border-pink-900/30 transition-colors duration-200">
+        <div class="max-w-4xl mx-auto flex items-end gap-2 bg-pink-50/50 dark:bg-slate-800/60 p-2 rounded-2xl border border-pink-200/80 dark:border-pink-900/40 focus-within:border-pink-400 dark:focus-within:border-pink-500 focus-within:ring-4 focus-within:ring-pink-100 dark:focus-within:ring-pink-900/30 transition-all shadow-sm">
+          
+          <!-- Camera Scan Button (Instant from phone/webcam) -->
+          <button 
+            id="btn-open-camera"
+            type="button"
+            class="p-2.5 rounded-xl bg-pink-100 dark:bg-slate-700 hover:bg-pink-200 dark:hover:bg-slate-600 text-pink-700 dark:text-pink-300 transition-colors flex-shrink-0 flex items-center gap-1.5"
+            title="Scan question directly with phone camera"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span class="text-xs font-bold hidden sm:inline">Scan</span>
+          </button>
+
+          <!-- File Upload Button -->
+          <label 
+            class="p-2.5 rounded-xl bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 cursor-pointer transition-colors flex-shrink-0"
+            title="Upload photo / diagram of problem"
+          >
+            <input type="file" id="file-input" accept="image/*" class="hidden">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          </label>
+
+          <!-- Question Input Textarea -->
+          <textarea 
+            id="prompt-input"
+            rows="1"
+            placeholder="Type your study question or equation... (or scan paper directly)"
+            class="flex-1 bg-transparent border-0 focus:ring-0 text-slate-800 dark:text-slate-100 text-sm md:text-base outline-none resize-none max-h-36 py-2 px-1 placeholder-slate-400 dark:placeholder-slate-500 font-sans"
+          ></textarea>
+
+          <!-- Send Button -->
+          <button 
+            id="btn-send-message"
+            type="button"
+            class="p-3 rounded-xl bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold shadow-md shadow-pink-500/30 flex-shrink-0 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <svg class="w-5 h-5 transform rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+          </button>
+        </div>
+
+        <div class="text-center mt-1.5">
+          <p class="text-[11px] text-slate-400 dark:text-slate-500">
+            Wanja labels work properly: Givens • Formulas • Numbered Steps • Boxed Answer
+          </p>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <!-- ==================== CAMERA SCAN MODAL ==================== -->
+  <div id="camera-modal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col hidden animate-fade-in">
+    <!-- Camera Header -->
+    <div class="p-4 flex items-center justify-between text-white bg-slate-900/60 z-10">
+      <div class="flex items-center gap-2">
+        <span class="w-3 h-3 rounded-full bg-rose-500 animate-ping"></span>
+        <span class="font-bold text-sm">Scan Study Question</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="btn-flip-camera" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs flex items-center gap-1 font-semibold">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          <span class="hidden sm:inline">Flip</span>
+        </button>
+        <button id="btn-close-camera" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Video Feed & Scanning Reticle -->
+    <div class="flex-1 relative flex items-center justify-center overflow-hidden bg-black">
+      <video id="camera-video" autoplay playsinline muted class="w-full h-full object-cover"></video>
+      <canvas id="camera-canvas" class="hidden"></canvas>
+
+      <!-- Target Reticle Box -->
+      <div class="absolute inset-8 sm:inset-16 md:inset-24 border-2 border-pink-400 rounded-2xl pointer-events-none shadow-[0_0_0_9999px_rgba(0,0,0,0.5)] flex flex-col justify-between p-3">
+        <div class="flex justify-between items-start">
+          <div class="w-6 h-6 border-t-4 border-l-4 border-pink-400 -mt-1 -ml-1 rounded-tl"></div>
+          <span class="bg-pink-600/90 text-white font-bold text-[11px] px-2.5 py-0.5 rounded-full backdrop-blur-md shadow">
+            Align Question or Equation Here
+          </span>
+          <div class="w-6 h-6 border-t-4 border-r-4 border-pink-400 -mt-1 -mr-1 rounded-tr"></div>
+        </div>
+        <div class="flex justify-between items-end">
+          <div class="w-6 h-6 border-b-4 border-l-4 border-pink-400 -mb-1 -ml-1 rounded-bl"></div>
+          <div class="w-6 h-6 border-b-4 border-r-4 border-pink-400 -mb-1 -mr-1 rounded-br"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Camera Controls Footer -->
+    <div class="p-6 bg-slate-900/80 flex items-center justify-center gap-8">
+      <button 
+        id="btn-capture-camera"
+        class="w-20 h-20 rounded-full border-4 border-pink-400 bg-white hover:bg-pink-100 flex items-center justify-center shadow-2xl active:scale-95 transition-all text-pink-600 font-bold"
+      >
+        <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-pink-500 to-purple-600 flex items-center justify-center text-white">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== REFERENCE BOOK MODAL ==================== -->
+  <div id="book-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden animate-fade-in">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-lg p-6 shadow-2xl border border-pink-200 dark:border-pink-900/50 max-h-[90vh] overflow-y-auto">
+      
+      <div class="flex items-center justify-between pb-4 border-b border-pink-100 dark:border-pink-900/30 mb-4">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">📚</span>
+          <div>
+            <h3 class="font-extrabold font-display text-lg text-slate-800 dark:text-slate-100">Choose Reference Book</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Wanja will derive exact formulas and solutions from this syllabus</p>
+          </div>
+        </div>
+        <button id="btn-close-book-modal" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Quick Presets -->
+      <div class="mb-5">
+        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
+          ⭐ Popular Textbook Presets
+        </label>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="preset-books-container">
+          <!-- Injected via app.js -->
+        </div>
+      </div>
+
+      <!-- Custom Book Details Form -->
+      <div class="bg-pink-50/50 dark:bg-slate-800/50 p-4 rounded-2xl border border-pink-200/80 dark:border-pink-900/30 space-y-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-pink-700 dark:text-pink-400 flex items-center gap-1.5">
+          <span>✏️</span> Or Enter Custom Book Details
+        </div>
+        
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Book Name / Title</label>
+          <input 
+            type="text" 
+            id="custom-book-title" 
+            placeholder="e.g. Calculus: Early Transcendentals, Pure Mathematics" 
+            class="w-full px-3 py-2 rounded-xl border border-pink-200 dark:border-pink-900/50 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:border-pink-500 bg-white dark:bg-slate-800"
+          />
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Edition</label>
+            <input 
+              type="text" 
+              id="custom-book-edition" 
+              placeholder="e.g. 8th Edition, 2024 Rev" 
+              class="w-full px-3 py-2 rounded-xl border border-pink-200 dark:border-pink-900/50 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:border-pink-500 bg-white dark:bg-slate-800"
+            />
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Author / Writer</label>
+            <input 
+              type="text" 
+              id="custom-book-author" 
+              placeholder="e.g. James Stewart, Halliday" 
+              class="w-full px-3 py-2 rounded-xl border border-pink-200 dark:border-pink-900/50 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:border-pink-500 bg-white dark:bg-slate-800"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Save Button -->
+      <div class="mt-5 flex justify-end gap-2">
+        <button 
+          id="btn-cancel-book-modal"
+          class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
+          Cancel
+        </button>
+        <button 
+          id="btn-save-book-modal"
+          class="px-5 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs font-bold hover:from-pink-600 hover:to-purple-700 shadow-md shadow-pink-500/20"
+        >
+          Apply to This Chat
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== API KEY SETTINGS MODAL ==================== -->
+  <div id="apikey-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden animate-fade-in">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-md p-6 shadow-2xl border border-pink-200 dark:border-pink-900/50">
+      <div class="flex items-center justify-between pb-3 border-b border-pink-100 dark:border-pink-900/30 mb-3">
+        <h3 class="font-extrabold font-display text-base text-slate-800 dark:text-slate-100 flex items-center gap-2">
+          <span>⚙️</span> AI Engine Settings
+        </h3>
+        <button id="btn-close-apikey-modal" class="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <p class="text-xs text-slate-600 dark:text-slate-300 mb-3">
+        Wanja works immediately with its built-in curriculum solver engine. You can also optionally paste a <strong>Gemini API Key</strong> for limitless multi-modal reasoning.
+      </p>
+
+      <div class="mb-4">
+        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
+          Gemini / AI API Key (Optional)
+        </label>
+        <input 
+          type="password" 
+          id="apikey-input" 
+          placeholder="AIzaSy..." 
+          class="w-full px-3 py-2 rounded-xl border border-pink-200 dark:border-pink-900/50 font-mono text-xs focus:outline-none focus:border-pink-500 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100"
+        />
+        <p id="apikey-status" class="text-[11px] text-slate-500 dark:text-slate-400 mt-1"></p>
+      </div>
+
+      <div class="flex justify-end gap-2">
+        <button id="btn-save-apikey" class="px-4 py-2 rounded-xl bg-pink-500 text-white font-bold text-xs hover:bg-pink-600">
+          Save Settings
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
