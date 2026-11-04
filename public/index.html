@@ -142,7 +142,7 @@
         </div>
         <div class="mt-1 pt-1.5 border-t border-pink-100/60 dark:border-pink-900/30 text-center">
           <p class="font-fancy text-base font-bold bg-gradient-to-r from-pink-600 via-rose-500 to-purple-600 bg-clip-text text-transparent">
-            created by @byttie
+            created by @byttiee
           </p>
           <p class="text-[10px] text-pink-700/80 dark:text-pink-300/80 font-medium tracking-wide">
             report if there is an issue
@@ -217,7 +217,7 @@
         <!-- Noticeable Creator Signature in Sidebar -->
         <div class="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-pink-50 to-purple-50 dark:from-slate-800/80 dark:to-purple-950/30 border border-pink-200/80 dark:border-pink-900/50 text-center">
           <p class="font-fancy text-base font-bold bg-gradient-to-r from-pink-600 via-rose-500 to-purple-600 bg-clip-text text-transparent">
-            created by @byttie
+            created by @byttiee
           </p>
           <p class="text-[10px] text-pink-700 dark:text-pink-300 font-medium">
             report if there is an issue
@@ -252,7 +252,7 @@
       <div class="pointer-events-none select-none absolute inset-0 flex items-center justify-center opacity-[0.035] dark:opacity-[0.05] z-0 overflow-hidden">
         <div class="text-center transform -rotate-12 space-y-2">
           <p class="font-fancy text-4xl sm:text-6xl md:text-7xl font-bold tracking-wide text-pink-600 dark:text-pink-400">
-            created by @byttie
+            created by @byttiee
           </p>
           <p class="font-sans text-xs sm:text-sm font-semibold tracking-widest uppercase text-slate-800 dark:text-slate-100">
             report if there is an issue
@@ -382,7 +382,7 @@
           <span class="text-slate-300 dark:text-slate-600 hidden sm:inline">•</span>
           <div class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-pink-100/60 dark:bg-pink-950/40 border border-pink-200/70 dark:border-pink-900/50">
             <span class="font-fancy text-sm sm:text-base font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-              created by @byttie
+              created by @byttiee
             </span>
             <span class="text-[10px] text-pink-700 dark:text-pink-300 font-medium">
               (report if there is an issue)
@@ -500,11 +500,11 @@
             />
           </div>
           <div>
-            <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Author / Writer</label>
+            <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Author / Writer <span class="text-[10px] text-pink-500 font-normal">(Optional - Wanja auto-detects)</span></label>
             <input 
               type="text" 
               id="custom-book-author" 
-              placeholder="e.g. James Stewart, Halliday" 
+              placeholder="Leave blank to auto-detect author" 
               class="w-full px-3 py-2 rounded-xl border border-pink-200 dark:border-pink-900/50 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:border-pink-500 bg-white dark:bg-slate-800"
             />
           </div>
@@ -563,6 +563,19 @@
           Save Settings
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- Fullscreen Image Viewer Modal (Click attachment to view) -->
+  <div id="image-viewer-modal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center hidden animate-fade-in p-2 sm:p-4">
+    <button id="btn-close-viewer" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors z-10" title="Close viewer">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+    <div class="max-w-4xl max-h-[85vh] overflow-auto flex items-center justify-center p-1">
+      <img id="viewer-modal-image" src="" alt="Enlarged attachment" class="max-w-full max-h-[80vh] rounded-xl object-contain shadow-2xl border border-white/20">
+    </div>
+    <div class="mt-2 text-center text-xs text-white/70">
+      <span>🔍 Click outside or tap close to return to chat</span>
     </div>
   </div>
 

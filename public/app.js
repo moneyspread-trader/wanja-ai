@@ -121,6 +121,23 @@ const btnSaveApiKey = document.getElementById('btn-save-apikey');
 const apikeyInput = document.getElementById('apikey-input');
 const apikeyStatus = document.getElementById('apikey-status');
 
+// Fullscreen Image Viewer Elements
+const imageViewerModal = document.getElementById('image-viewer-modal');
+const viewerModalImage = document.getElementById('viewer-modal-image');
+const btnCloseViewer = document.getElementById('btn-close-viewer');
+
+function openImageViewer(src) {
+  if (!imageViewerModal || !viewerModalImage) return;
+  viewerModalImage.src = src;
+  imageViewerModal.classList.remove('hidden');
+}
+
+function closeImageViewer() {
+  if (!imageViewerModal) return;
+  imageViewerModal.classList.add('hidden');
+  if (viewerModalImage) viewerModalImage.src = '';
+}
+
 // ==========================================
 // THEME MANAGEMENT (DARK / LIGHT MODE)
 // ==========================================
@@ -249,6 +266,16 @@ function setupEventListeners() {
   btnOpenApiKey.addEventListener('click', openApiKeyModal);
   btnCloseApiKeyModal.addEventListener('click', closeApiKeyModal);
   btnSaveApiKey.addEventListener('click', saveApiKey);
+
+  // Fullscreen Image Viewer Modal
+  if (btnCloseViewer) btnCloseViewer.addEventListener('click', closeImageViewer);
+  if (imageViewerModal) {
+    imageViewerModal.addEventListener('click', (e) => {
+      if (e.target === imageViewerModal || e.target.closest('#btn-close-viewer')) {
+        closeImageViewer();
+      }
+    });
+  }
 }
 
 // ==========================================
@@ -559,14 +586,26 @@ function appendMessageElement(msg, autoScroll = true) {
     wrapper.innerHTML = `
       <div class="max-w-[90%] sm:max-w-[78%] rounded-2xl rounded-tr-none px-3.5 py-2.5 sm:px-4 sm:py-3 bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 text-white shadow-md shadow-pink-500/20 text-sm break-words overflow-hidden">
         ${msg.imageData ? `
-          <div class="mb-2 rounded-lg overflow-hidden border border-white/20">
-            <img src="${msg.imageData}" alt="Scanned problem" class="max-h-52 w-full object-contain bg-black/10">
+          <div class="mb-2 rounded-lg overflow-hidden border border-white/20 relative group cursor-pointer image-attachment-thumb" title="Click to view full image">
+            <img src="${msg.imageData}" alt="Scanned problem" class="max-h-56 w-full object-contain bg-black/20 hover:scale-[1.02] transition-transform">
+            <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[1px]">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/></svg>
+              <span>Tap to enlarge</span>
+            </div>
           </div>
         ` : ''}
         <div class="whitespace-pre-wrap break-words">${escapeHtml(msg.text || '')}</div>
       </div>
       <span class="text-[10px] text-slate-400 mt-1 mr-1">${formatTime(msg.timestamp)}</span>
     `;
+
+    // Hook click to enlarge
+    if (msg.imageData) {
+      const thumb = wrapper.querySelector('.image-attachment-thumb');
+      if (thumb) {
+        thumb.addEventListener('click', () => openImageViewer(msg.imageData));
+      }
+    }
   } else {
     // Assistant Message with proper labeling & Explain button
     const hasExplanation = !!msg.explanation;

@@ -5,6 +5,65 @@ const { extractTextFromImage } = require('./ocrHelper');
  * Catalog of known curriculum textbook standards
  */
 const TEXTBOOK_CATALOG = {
+  'calculus': { author: 'James Stewart', edition: '8th Edition' },
+  'early transcendentals': { author: 'James Stewart', edition: '8th Edition' },
+  'soil mechanics': { author: 'R.F. Craig & J.A. Knappett', edition: '8th Edition' },
+  'craig': { author: 'R.F. Craig & J.A. Knappett', edition: '8th Edition' },
+  'physics': { author: 'Halliday, Resnick & Walker', edition: '10th Edition' },
+  'fundamentals of physics': { author: 'Halliday, Resnick & Walker', edition: '10th Edition' },
+  'chemistry': { author: 'Brown, LeMay & Bursten', edition: '14th Edition' },
+  'central science': { author: 'Brown, LeMay & Bursten', edition: '14th Edition' },
+  'biology': { author: 'Urry, Cain & Wasserman', edition: '11th Edition' },
+  'campbell': { author: 'Urry, Cain & Wasserman', edition: '11th Edition' },
+  'engineering mathematics': { author: 'K.A. Stroud & Dexter Booth', edition: '8th Edition' },
+  'stroud': { author: 'K.A. Stroud & Dexter Booth', edition: '8th Edition' },
+  'advanced engineering mathematics': { author: 'Erwin Kreyszig', edition: '10th Edition' },
+  'kreyszig': { author: 'Erwin Kreyszig', edition: '10th Edition' },
+  'linear algebra': { author: 'Gilbert Strang', edition: '5th Edition' },
+  'strang': { author: 'Gilbert Strang', edition: '5th Edition' },
+  'pure mathematics': { author: 'J.K. Backhouse', edition: '4th Edition' },
+  'organic chemistry': { author: 'Paula Yurkanis Bruice', edition: '8th Edition' },
+  'fluid mechanics': { author: 'Frank M. White', edition: '8th Edition' },
+  'thermodynamics': { author: 'Yunus A. Çengel', edition: '9th Edition' }
+};
+
+function autoResolveBook(givenBook) {
+  if (!givenBook || !givenBook.title) {
+    return {
+      title: 'Standard Curriculum Reference',
+      edition: 'Latest Edition',
+      author: 'Authoritative Curriculum'
+    };
+  }
+
+  const titleLower = givenBook.title.toLowerCase();
+  let resolvedAuthor = (givenBook.author || '').trim();
+  let resolvedEdition = (givenBook.edition || '').trim();
+
+  // If author was not provided or user said "don't know", look up in directory
+  if (!resolvedAuthor || resolvedAuthor.toLowerCase().includes('unknown') || resolvedAuthor.toLowerCase().includes('dont know')) {
+    for (const [key, info] of Object.entries(KNOWN_BOOK_DIRECTORY)) {
+      if (titleLower.includes(key)) {
+        resolvedAuthor = info.author;
+        if (!resolvedEdition) resolvedEdition = info.edition;
+        break;
+      }
+    }
+    if (!resolvedAuthor) {
+      resolvedAuthor = 'Curriculum Standard';
+    }
+  }
+
+  if (!resolvedEdition) {
+    resolvedEdition = 'Standard Edition';
+  }
+
+  return {
+    title: givenBook.title.trim(),
+    edition: resolvedEdition,
+    author: resolvedAuthor
+  };
+}
   craig_soil: {
     title: "Craig's Soil Mechanics",
     edition: '8th Edition',
@@ -35,11 +94,7 @@ const TEXTBOOK_CATALOG = {
  * Solve a study question using the designated Reference Book
  */
 async function solveQuestion({ prompt, imageData, referenceBook, apiKey }) {
-  let book = referenceBook || {
-    title: 'Academic Reference Standard',
-    edition: 'Latest Edition',
-    author: 'Curriculum Board'
-  };
+  let book = autoResolveBook(referenceBook);
 
   let userText = (prompt || '').trim();
   let ocrExtracted = '';
@@ -1079,17 +1134,16 @@ function generateExplanation(originalMessage, referenceBook) {
 
 async function queryLiveAI({ prompt, imageData, book, apiKey }) {
   const systemInstruction = `You are Wanja, a direct assignment study assistant.
-CRITICAL INSTRUCTION:
-The user scanned/uploaded an assignment sheet. 
-Look KEENLY at the entire image and text.
-FOLLOW ALL INSTRUCTIONS AND QUESTIONS SYSTEMATICALLY (e.g. Question 1, Question 2 parts a, b, c, Question 3).
-Do not skip any question or instruction.
-Format each question with:
-- ### 📌 Question Number & Topic
-- #### 📋 Given
-- #### 📐 Formula Applied (citing ${book.title} by ${book.author})
-- #### ✍️ Step-by-Step Calculation
-- #### 🎯 Final Answer (in \\boxed{...})`;
+CRITICAL INSTRUCTIONS:
+1. ONLY write the pure mathematical/scientific solution and the calculation steps:
+   - 📌 Given values
+   - 📐 Formula (from ${book.title})
+   - ✍️ Step-by-Step calculation flow (how the numbers lead directly to the answer)
+   - 🎯 Final Answer (in \\boxed{...})
+2. DO NOT write long theoretical essays, background history, or unneeded wordy explanations in this main response. Keep it strictly concise so the student can copy the working directly into their notebook.
+3. Deep intuitive explanations are reserved exclusively for the "Explain" button.
+4. If an image is provided, ignore phone screenshot status bars (e.g. time, battery, network indicators) and focus 100% on the core academic questions, math problems, or diagrams.
+5. Answer ALL questions found in the document systematically without skipping any.`;
 
   const payload = {
     contents: [

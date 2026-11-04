@@ -47,9 +47,12 @@ async function extractTextFromImage(imageInput) {
     // Allow up to 25 seconds for detailed full-page assignment OCR
     const recognitionPromise = (async () => {
       const ret = await worker.recognize(source);
-      const text = (ret.data && ret.data.text) ? ret.data.text.trim() : '';
+      let rawText = (ret.data && ret.data.text) ? ret.data.text.trim() : '';
       const confidence = (ret.data && ret.data.confidence) ? ret.data.confidence : 0;
-      return { text, confidence };
+      
+      // Filter phone screenshot status bar headers & navigation clutter
+      const filteredText = filterScreenshotNoise(rawText);
+      return { text: filteredText, rawText, confidence };
     })();
 
     const timeoutPromise = new Promise((resolve) => {
@@ -67,7 +70,23 @@ async function extractTextFromImage(imageInput) {
   }
 }
 
+function filterScreenshotNoise(text) {
+  if (!text) return '';
+  const lines = text.split('\n');
+  const filtered = lines.filter(line => {
+    const l = line.trim().toLowerCase();
+    // Common phone top-bar / screenshot indicators:
+    if (/^(?:\d{1,2}:\d{2}|[0-9]{1,2}%|\d+\s*kb\/s|\d+\s*mb\/s|lte|4g|5g|volte|am|pm)$/i.test(l)) return false;
+    if (l.includes('battery') || l.includes('screen record') || l.includes('airplane mode')) return false;
+    // Android/iOS screenshot header artifacts like "12:45" alone or with icons:
+    if (/^\W*\d{1,2}:\d{2}\W*$/.test(l)) return false;
+    return true;
+  });
+  return filtered.join('\n').trim();
+}
+
 module.exports = {
   extractTextFromImage,
+  filterScreenshotNoise,
   getWorker
 };
