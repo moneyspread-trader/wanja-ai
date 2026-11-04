@@ -27,6 +27,33 @@ const TEXTBOOK_CATALOG = {
   'thermodynamics': { author: 'Yunus A. Çengel', edition: '9th Edition' }
 };
 
+const KNOWN_BOOK_DIRECTORY = {
+  craig_soil: {
+    title: "Craig's Soil Mechanics",
+    edition: '8th Edition',
+    author: 'R.F. Craig & J.A. Knappett',
+    subjects: ['Soil Mechanics', 'Lateral Earth Pressure', 'Retaining Walls', 'Centroids', 'Shear & Moment']
+  },
+  stewart_calc: {
+    title: 'Calculus: Early Transcendentals',
+    edition: '8th Edition',
+    author: 'James Stewart',
+    subjects: ['Calculus', 'Limits', 'Derivatives', 'Integrals', 'Series', 'Centroids']
+  },
+  halliday_physics: {
+    title: 'Fundamentals of Physics',
+    edition: '10th Edition',
+    author: 'Halliday, Resnick & Walker',
+    subjects: ['Mechanics', 'Thermodynamics', 'Electromagnetism', 'Optics']
+  },
+  brown_chem: {
+    title: 'Chemistry: The Central Science',
+    edition: '14th Edition',
+    author: 'Brown, LeMay & Bursten',
+    subjects: ['Stoichiometry', 'Equilibrium', 'Atomic Structure']
+  }
+};
+
 function autoResolveBook(givenBook) {
   if (!givenBook || !givenBook.title) {
     return {
@@ -64,31 +91,6 @@ function autoResolveBook(givenBook) {
     author: resolvedAuthor
   };
 }
-  craig_soil: {
-    title: "Craig's Soil Mechanics",
-    edition: '8th Edition',
-    author: 'R.F. Craig & J.A. Knappett',
-    subjects: ['Soil Mechanics', 'Lateral Earth Pressure', 'Retaining Walls', 'Centroids', 'Shear & Moment']
-  },
-  stewart_calc: {
-    title: 'Calculus: Early Transcendentals',
-    edition: '8th Edition',
-    author: 'James Stewart',
-    subjects: ['Calculus', 'Limits', 'Derivatives', 'Integrals', 'Series', 'Centroids']
-  },
-  halliday_physics: {
-    title: 'Fundamentals of Physics',
-    edition: '10th Edition',
-    author: 'Halliday, Resnick & Walker',
-    subjects: ['Mechanics', 'Thermodynamics', 'Electromagnetism', 'Optics']
-  },
-  brown_chem: {
-    title: 'Chemistry: The Central Science',
-    edition: '14th Edition',
-    author: 'Brown, LeMay & Bursten',
-    subjects: ['Stoichiometry', 'Equilibrium', 'Atomic Structure']
-  }
-};
 
 /**
  * Solve a study question using the designated Reference Book
