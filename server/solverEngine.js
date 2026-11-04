@@ -45,6 +45,9 @@ async function solveQuestion({ prompt, imageData, referenceBook, apiKey }) {
   let ocrExtracted = '';
   let ocrConfidence = 0;
 
+  // Support both GEMINI_API_KEY from environment (e.g. Render env vars) or user DB setting
+  const activeKey = apiKey || process.env.GEMINI_API_KEY || '';
+
   // 1. If an image is uploaded or scanned, RUN HIGH-ACCURACY OCR WITH CONTRAST ENHANCEMENT
   if (imageData) {
     try {
@@ -86,9 +89,9 @@ async function solveQuestion({ prompt, imageData, referenceBook, apiKey }) {
 
   // 3. CHECK IF USER SENT AN IMAGE BUT ZERO TEXT WAS FOUND AND NO PROMPT
   if (imageData && !combinedText.trim()) {
-    if (apiKey) {
+    if (activeKey) {
       try {
-        const liveResult = await queryLiveAI({ prompt: 'Read every question and instruction in this image keenly and solve them step by step.', imageData, book, apiKey });
+        const liveResult = await queryLiveAI({ prompt: 'Read every question and instruction in this image keenly and solve them step by step.', imageData, book, apiKey: activeKey });
         if (liveResult) return liveResult;
       } catch (err) {}
     }
@@ -104,9 +107,9 @@ The image appears too blurry, out of focus, or does not show legible text.
   }
 
   // 4. LIVE AI (if key is set)
-  if (apiKey) {
+  if (activeKey) {
     try {
-      const liveResult = await queryLiveAI({ prompt: combinedText, imageData, book, apiKey });
+      const liveResult = await queryLiveAI({ prompt: combinedText, imageData, book, apiKey: activeKey });
       if (liveResult) return (photoConfirmationBadge + liveResult);
     } catch (err) {
       console.warn('Live AI query failed, falling back to built-in Wanja solver:', err.message);

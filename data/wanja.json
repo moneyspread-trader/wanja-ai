@@ -10,7 +10,7 @@
       "username": "collo",
       "displayName": "collo",
       "createdAt": "2026-11-03T17:34:32.812Z",
-      "lastLogin": "2026-11-03T19:27:06.114Z"
+      "lastLogin": "2026-11-03T20:06:32.247Z"
     }
   },
   "chats": {
@@ -438,11 +438,11 @@
             "author": "Jonathan Knappett"
           },
           "responseTimeMs": 1228,
-          "explanation": null
+          "explanation": "### 💡 Wanja's Simple Explanation (Why this works!)\n\n---\n\n#### 🌟 1. The Big Picture\n- We broke down the problem into individual physical and mathematical steps.\n- For geometry (centroids), the center of area is always located at the average position weighted by distance.\n- For soil mechanics, soil creates a triangular pressure wedge against the wall, with the maximum force at the deepest point.\n- Because a cantilever wall is held fixed at the bottom, the soil pressure tries to bend it outward, creating tension along the back face touching the soil.\n\n---\n\n#### ⚠️ 2. Common Exam Trap:\n> **Don't confuse the tension and compression faces!** Think of bending an eraser: the side that stretches is in tension (the soil side). The side that squishes is in compression."
         }
       ],
       "createdAt": "2026-11-03T18:48:22.308Z",
-      "updatedAt": "2026-11-03T18:48:37.187Z"
+      "updatedAt": "2026-11-03T20:25:59.561Z"
     }
   },
   "config": {

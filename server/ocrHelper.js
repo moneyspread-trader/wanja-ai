@@ -31,7 +31,7 @@ async function getWorker() {
 getWorker().catch(e => console.warn('Pre-warm catch:', e.message));
 
 /**
- * High-speed OCR with 6-second anti-hang timeout protection
+ * High-accuracy OCR with generous timeout for phone uploads
  */
 async function extractTextFromImage(imageInput) {
   try {
@@ -44,7 +44,7 @@ async function extractTextFromImage(imageInput) {
     const worker = await getWorker();
     if (!worker) return { text: '', confidence: 0 };
 
-    // Anti-lag / anti-hang: Guarantee maximum 6 seconds limit
+    // Allow up to 25 seconds for detailed full-page assignment OCR
     const recognitionPromise = (async () => {
       const ret = await worker.recognize(source);
       const text = (ret.data && ret.data.text) ? ret.data.text.trim() : '';
@@ -54,9 +54,9 @@ async function extractTextFromImage(imageInput) {
 
     const timeoutPromise = new Promise((resolve) => {
       setTimeout(() => {
-        console.warn('⚠️ OCR recognition timed out after 6000ms, continuing smoothly without hanging.');
+        console.warn('⚠️ OCR recognition timed out after 25s.');
         resolve({ text: '', confidence: 0, timedOut: true });
-      }, 6000);
+      }, 25000);
     });
 
     const result = await Promise.race([recognitionPromise, timeoutPromise]);
