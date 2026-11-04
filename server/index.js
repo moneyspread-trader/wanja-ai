@@ -18,6 +18,11 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // ----------------- AUTH ROUTES ----------------- //
 
+// Health check endpoint for cloud hosts (Render / Railway)
+app.get('/healthz', (req, res) => {
+  res.status(200).send('OK');
+});
+
 // Passcode Gate Check
 app.post('/api/auth/verify-passcode', (req, res) => {
   const { passcode } = req.body;

@@ -5,6 +5,11 @@ const DB_FILE = path.join(__dirname, '..', 'data', 'wanja.json');
 
 // Initialize DB file if not present
 function initDB() {
+  const dataDir = path.dirname(DB_FILE);
+  if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
+  }
+
   if (!fs.existsSync(DB_FILE)) {
     const initialData = {
       users: {}, // { username: { username, createdAt, lastLogin } }

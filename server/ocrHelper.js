@@ -27,8 +27,8 @@ async function getWorker() {
   return ocrWorker;
 }
 
-// Auto pre-warm on module load
-getWorker().catch(e => console.warn('Pre-warm catch:', e.message));
+// Lazy-load worker on first request instead of crashing during server boot
+// getWorker().catch(e => console.warn('Pre-warm catch:', e.message));
 
 /**
  * High-accuracy OCR with generous timeout for phone uploads
