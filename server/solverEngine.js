@@ -136,7 +136,7 @@ async function solveQuestion({ prompt, imageData, referenceBook, apiKey }) {
   // Auto-detect if textbook is specifically requested in the assignment text
   // e.g. "Craig's Soil Mechanics (8th Edition)"
   if (combinedText.toLowerCase().includes('craig') && combinedText.toLowerCase().includes('soil')) {
-    book = TEXTBOOK_CATALOG.craig_soil;
+    book = KNOWN_BOOK_DIRECTORY.craig_soil || book;
   }
 
   // 2. GREETINGS CHECK (only if user provided no image or OCR found no text, and typed greeting)
@@ -174,8 +174,20 @@ The image appears too blurry, out of focus, or does not show legible text.
   }
 
   // 5. BUILT-IN OFFLINE SOLVER ENGINE
-  const baseSolution = generateDirectHomeworkSolution(combinedText, imageData, book);
-  return photoConfirmationBadge + baseSolution;
+  try {
+    const baseSolution = generateDirectHomeworkSolution(combinedText, imageData, book);
+    return photoConfirmationBadge + baseSolution;
+  } catch (err) {
+    console.error('Error generating direct homework solution:', err);
+    return photoConfirmationBadge + `### 📝 Study Problem
+*(Reference: ${book ? book.title : 'Curriculum Standard'})*
+
+I identified your question but encountered an issue formatting the specific formula. 
+
+**Quick options:**
+- Tap 💡 **Explain** below to see the concepts.
+- Or type the key numbers or formula directly so I can solve it step-by-step for you!`;
+  }
 }
 
 /**
@@ -229,7 +241,8 @@ function isGenericImagePrompt(text) {
  * Main Direct Assignment Solver - Follows All Instructions Keenly
  */
 function generateDirectHomeworkSolution(text, imageData, book) {
-  const lower = text.toLowerCase();
+  book = autoResolveBook(book);
+  const lower = (text || '').toLowerCase();
   const citationLine = `*(Reference Standard: ${book.title}, ${book.edition} by ${book.author})*`;
 
   // SPECIALIZED MULTI-QUESTION SCAN: Soil Mechanics / Cantilever Retaining Wall / Centroid of Triangle
