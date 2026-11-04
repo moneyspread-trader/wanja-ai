@@ -3,43 +3,72 @@ const path = require('path');
 
 const DB_FILE = path.join(__dirname, '..', 'data', 'wanja.json');
 
+// In-memory fallback store for environments with read-only filesystems (e.g. Render free tier)
+let memoryStore = null;
+let useMemoryOnly = false;
+
+const EMPTY_DB = () => ({
+  users: {},
+  chats: {},
+  config: {
+    passcode: 'BETTYAI',
+    apiKey: process.env.GEMINI_API_KEY || ''
+  }
+});
+
 // Initialize DB file if not present
 function initDB() {
-  const dataDir = path.dirname(DB_FILE);
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
+  if (useMemoryOnly) return; // already using memory
 
-  if (!fs.existsSync(DB_FILE)) {
-    const initialData = {
-      users: {}, // { username: { username, createdAt, lastLogin } }
-      chats: {}, // { chatId: { id, username, title, referenceBook, messages: [], createdAt, updatedAt } }
-      config: {
-        passcode: 'BETTYAI',
-        apiKey: process.env.GEMINI_API_KEY || ''
-      }
-    };
-    fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2), 'utf8');
+  try {
+    const dataDir = path.dirname(DB_FILE);
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+    if (!fs.existsSync(DB_FILE)) {
+      fs.writeFileSync(DB_FILE, JSON.stringify(EMPTY_DB(), null, 2), 'utf8');
+    }
+  } catch (err) {
+    console.warn('⚠️  File DB unavailable, switching to in-memory store (data resets on restart):', err.message);
+    useMemoryOnly = true;
+    if (!memoryStore) memoryStore = EMPTY_DB();
   }
 }
 
 function readDB() {
+  if (useMemoryOnly) {
+    if (!memoryStore) memoryStore = EMPTY_DB();
+    return memoryStore;
+  }
   initDB();
+  if (useMemoryOnly) return memoryStore; // initDB may have flipped this
   try {
     const data = fs.readFileSync(DB_FILE, 'utf8');
     return JSON.parse(data);
   } catch (err) {
-    console.error('Error reading DB, re-initializing:', err);
-    initDB();
-    return JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+    console.error('Error reading DB, using empty store:', err.message);
+    return EMPTY_DB();
   }
 }
 
 function writeDB(data) {
-  const tempPath = DB_FILE + '.tmp';
-  fs.writeFileSync(tempPath, JSON.stringify(data, null, 2), 'utf8');
-  fs.renameSync(tempPath, DB_FILE);
+  if (useMemoryOnly) {
+    memoryStore = data;
+    return;
+  }
+  try {
+    const tempPath = DB_FILE + '.tmp';
+    fs.writeFileSync(tempPath, JSON.stringify(data, null, 2), 'utf8');
+    fs.renameSync(tempPath, DB_FILE);
+  } catch (err) {
+    console.warn('⚠️  File write failed, falling back to memory:', err.message);
+    useMemoryOnly = true;
+    memoryStore = data;
+  }
 }
+
+// Run init at module load
+initDB();
 
 module.exports = {
   verifyPasscode(passcode) {

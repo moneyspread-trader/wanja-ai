@@ -1,13 +1,20 @@
-const { createWorker } = require('tesseract.js');
+// Safe-load tesseract.js — may not be available in restricted cloud envs
+let createWorker = null;
+try {
+  createWorker = require('tesseract.js').createWorker;
+  console.log('✅ Tesseract.js loaded successfully.');
+} catch (e) {
+  console.warn('⚠️  Tesseract.js unavailable — OCR disabled (text questions still work):', e.message);
+}
 
 let ocrWorker = null;
 let isInitializing = false;
 
-// Pre-warm the Tesseract worker so recognition starts immediately
+// Lazy-load worker on first OCR request (never during boot)
 async function getWorker() {
+  if (!createWorker) return null;  // OCR disabled gracefully
   if (ocrWorker) return ocrWorker;
   if (isInitializing) {
-    // Wait for in-flight init
     while (isInitializing) {
       await new Promise(r => setTimeout(r, 100));
     }
@@ -16,19 +23,17 @@ async function getWorker() {
 
   isInitializing = true;
   try {
-    console.log('⚡ Pre-warming Wanja high-speed OCR vision engine...');
+    console.log('⚡ Initializing Wanja OCR vision engine...');
     ocrWorker = await createWorker('eng');
-    console.log('✅ Wanja OCR engine is hot and ready for instant recognition.');
+    console.log('✅ Wanja OCR engine ready.');
   } catch (err) {
-    console.warn('OCR Worker init error:', err.message);
+    console.warn('OCR Worker init error (OCR disabled for this session):', err.message);
+    ocrWorker = null;
   } finally {
     isInitializing = false;
   }
   return ocrWorker;
 }
-
-// Lazy-load worker on first request instead of crashing during server boot
-// getWorker().catch(e => console.warn('Pre-warm catch:', e.message));
 
 /**
  * High-accuracy OCR with generous timeout for phone uploads

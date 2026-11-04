@@ -7,10 +7,12 @@
     "dev": "node server/index.js",
     "start": "node server/index.js"
   },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.21.2",
-    "localtunnel": "^2.0.2",
-    "tesseract.js": "^7.0.0"
+    "tesseract.js": "^5.1.1"
   }
 }
